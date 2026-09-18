@@ -1,0 +1,29 @@
+/* Remove the template's Pages menu and its expanded mobile/tablet links. */
+nav .framer-12fjbvm-container,
+nav .framer-3mabg3 > div:nth-child(n + 5) {
+  display: none !important;
+}
+
+/* Hide placeholder social profiles and app-store badges until real accounts exist. */
+footer [data-framer-name="Footer Menu Block"]:has(a[href*="facebook.com"]),
+footer [data-framer-name="Icon Block"],
+footer [data-framer-name="Footer Menu"] > :has(a[href$="404"]),
+a[href="http://facebook.com/"],
+a[href="http://twitter.com/"],
+a[href="https://instagram.com"],
+a[href="https://linkedin.com"],
+a[href="https://linkedin.com/"],
+a[href="https://www.linkedin.com/"],
+a[href="http://appstore.com/"],
+a[href="http://microsoft.com/"],
+a[href="https://play.google.com/store/apps"] {
+  display: none !important;
+}
+
+/* Course pages: the template video is a generic sample clip, so show the cover as a still image. */
+[data-framer-name="Play"] {
+  display: none !important;
+}
+[data-framer-name="Video"] {
+  pointer-events: none !important;
+}
