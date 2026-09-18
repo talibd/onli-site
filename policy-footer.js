@@ -1,8 +1,28 @@
 (() => {
   const policies = [
-    ['/privacy/cancellation-refund', 'Cancellations & Refunds'],
-    ['/privacy/shipping-delivery', 'Service Delivery Policy']
+    ['/cancellation-refund', 'Cancellations & Refunds'],
+    ['/shipping-delivery', 'Service Delivery Policy']
   ];
+  // Policy pages live at /<slug>; Framer's router still renders its own links as /privacy/<slug>.
+  const slugs = ['/privacy-policy', '/terms-conditions', '/cancellation-refund', '/shipping-delivery'];
+  const policyPath = link => {
+    const path = new URL(link.href, location.href).pathname.replace(/\/$/, '').replace(/^\/privacy(?=\/)/, '');
+    return slugs.includes(path) ? path : null;
+  };
+  // Capture phase runs before Framer's router, so the browser loads the static page normally.
+  addEventListener('click', event => {
+    const link = event.target.closest && event.target.closest('a[href]');
+    const path = link && policyPath(link);
+    if (!path) return;
+    link.href = path;
+    event.stopPropagation();
+  }, true);
+  function fixLinks() {
+    document.querySelectorAll('a[href*="/privacy/"]').forEach(link => {
+      const path = policyPath(link);
+      if (path && link.getAttribute('href') !== path) link.setAttribute('href', path);
+    });
+  }
   function addContact() {
     document.querySelectorAll('footer [data-framer-name="Text Block"]').forEach(block => {
       const text = block.querySelector(':scope > [data-framer-name="Text"]');
@@ -19,8 +39,9 @@
   }
   function addLinks() {
     addContact();
+    fixLinks();
     document.querySelectorAll('footer [data-framer-name="Footer Menu Block"]').forEach(block => {
-      const isPrivacyLink = link => new URL(link.href, location.href).pathname === '/privacy/privacy-policy';
+      const isPrivacyLink = link => policyPath(link) === '/privacy-policy';
       if (![...block.querySelectorAll('a')].some(isPrivacyLink)) return;
       const menu = block.querySelector('[data-framer-name="Footer Menu"]');
       const example = [...menu.children].find(child => [...child.querySelectorAll('a')].some(isPrivacyLink));
