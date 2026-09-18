@@ -5,5 +5,14 @@ self.addEventListener('activate', event => event.waitUntil(self.clients.claim())
 self.addEventListener('fetch', event => {
  const u=new URL(event.request.url);
  const local=exact[u.href] || base[u.origin+u.pathname];
+ const range=u.searchParams.get('range');
+ // Framer CMS asks for byte ranges via ?range=a-b,c-d; static hosts ignore it, so slice the whole file here.
+ if(range && u.pathname.endsWith('.framercms')) {
+  event.respondWith(fetch(local || u.pathname).then(r=>r.arrayBuffer()).then(buf=>{
+   const all=new Uint8Array(buf), parts=range.split(',').map(p=>p.split('-').map(Number));
+   return new Response(new Blob(parts.map(([a,b])=>all.subarray(a,b+1))), {headers:{'Content-Type':'application/octet-stream'}});
+  }));
+  return;
+ }
  if(local) event.respondWith(fetch(local));
 });
